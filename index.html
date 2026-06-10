@@ -314,8 +314,8 @@
                     const finalFee = Math.floor(deliveryBase * 0.94);
                     resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
                 } else if (deliveryType === 'credit') {
-                    const minFee = Math.floor(baseFare * 0.05);
-                    const maxFee = Math.floor(baseFare * 0.10);
+                    const minFee = Math.floor(baseFare * 0.05*0.94);
+                    const maxFee = Math.floor(baseFare * 0.10*0.94);
                     resultValueBox.innerHTML = `<span class="range-price">${minFee.toLocaleString()} ~ ${maxFee.toLocaleString()}</span> 원`;
                 }
                 
