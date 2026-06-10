@@ -188,9 +188,7 @@
     </div>
 
     <script>
-        // 현재 선택된 모드 상태 저장 (기본값: 'delivery')
         let currentMode = 'delivery';
-        // 급지는 B급지로 고정 처리
         const fixedRegion = 'B'; 
 
         // 탭 전환 함수
@@ -208,27 +206,26 @@
             const resultLabel = document.getElementById('result_label');
             const calcBtn = document.getElementById('calc_btn');
             
-            // ❌ [수정] 탭 변경 시 기존 입력값(.value = '')을 지우던 코드를 완벽히 제거했습니다!
-            // 수수료 결과 출력 박스만 초기화용 구조로 잡아둡니다.
+            // 결과창 초기화구조 잡기
             document.getElementById('out_result').innerText = '0';
             document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
 
-            // 클래스 완전 초기화 후 매칭되는 것만 주입
             tabDelivery.classList.remove('active', 'delivery');
             tabPickup.classList.remove('active', 'pickup');
             tabReturn.classList.remove('active', 'return');
             calcBtn.className = ''; 
 
+            // 💡 [핵심 버그 수정 포인트] .innerHTML을 쓰면 껍데기가 깨지므로 확실하게 값을 매핑하고 변환합니다.
             if (mode === 'delivery') {
                 tabDelivery.classList.add('active', 'delivery');
-                typeGroup.style.display = 'block'; 
+                typeGroup.style.style.display = 'block'; 
                 typeLabel.innerText = '운임 구분';
                 
-                // 배송용 셀렉트 옵션 구성
                 selectType.innerHTML = `
                     <option value="normal">선착불 / 발지신용</option>
                     <option value="credit">착지신용</option>
                 `;
+                selectType.value = "normal"; // 기본값 강제 지정
                 
                 inputLabel.innerText = '배송 운임 입력 (원)';
                 resultLabel.innerText = '예상 배송 수수료';
@@ -238,47 +235,39 @@
                 typeGroup.style.display = 'block'; 
                 typeLabel.innerText = '타입 (선불 / 신용)';
                 
-                // 집하용 셀렉트 옵션 구성
                 selectType.innerHTML = `
                     <option value="선불">선불</option>
                     <option value="신용">신용</option>
                 `;
+                selectType.value = "선불"; // 기본값 강제 지정
                 
                 inputLabel.innerText = '집하 운임 입력 (원)';
                 resultLabel.innerText = '예상 집하 수수료';
             } else if (mode === 'return') {
                 tabReturn.classList.add('active', 'return');
                 calcBtn.classList.add('return-mode');
-                typeGroup.style.display = 'none';  // 반품은 구분창 숨김
+                typeGroup.style.display = 'none';  
                 inputLabel.innerText = '반품 운임 입력 (원)';
                 resultLabel.innerText = '예상 반품 수수료';
             }
 
-            // ✨ [추가] 탭을 누르는 순간, 기존에 입력되어 있던 금액 기준으로 자동 즉시 계산 실행
             run_calculation_silent();
         }
 
-        // 구분/타입(셀렉트 박스) 변경 시 실행되는 함수
+        // 구분/타입 변경 시 실시간 자동 계산 함수
         function handleTypeChange() {
-            // ❌ [수정] 토글 바꿀 때 입력금액 리셋하던 코드 지움 (운임 유지)
-            document.getElementById('out_result').innerText = '0';
-            document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
-            
-            // ✨ [추가] 토글을 바꾸자마자 즉시 실시간 자동 계산 호출
             run_calculation_silent();
         }
 
-        // ✨ [추가] 값 입력 도중이나 토글 자동 전환 시 경고창(Alert) 없이 부드럽게 계산해주는 백그라운드 함수
+        // 실시간 무소음 계산기 제어
         function run_calculation_silent() {
             const fareValue = document.getElementById("calc_fare").value.trim();
             const fare = parseFloat(fareValue);
 
-            // 금액이 입력되지 않았거나 유효하지 않으면 연산하지 않고 0원으로 대기
             if (isNaN(fare) || fare <= 170) {
                 document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
                 return;
             }
-            // 값이 정상적이면 메인 연산 로직 작동
             run_calculation(true); 
         }
 
@@ -288,7 +277,6 @@
             const fare = parseFloat(fareValue);
             const resultValueBox = document.getElementById("result_value_box");
 
-            // 버튼을 직접 클릭했을 때만(isSilent가 아닐 때만) 경고 알림창을 띄우도록 제어
             if (isNaN(fare) || fare <= 170) {
                 if (isSilent !== true) {
                     alert("170원보다 큰 정확한 운임 금액을 입력해주세요.");
@@ -302,26 +290,22 @@
                 const deliveryType = document.getElementById("select_type").value;
                 
                 if (deliveryType === 'normal') {
-                    // 1-1) 일반 선착불 / 발지신용: B급지 단가 추출 후 94% 적용 (원단위 절사)
                     const deliveryBase = calculate_delivery_base_fee(fixedRegion, baseFare);
                     const finalFee = Math.floor(deliveryBase * 0.94);
                     resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
                 } else if (deliveryType === 'credit') {
-                    // 1-2) 착지신용: (총운임 - 170)의 5% ~ 10% 요율 구간 계산 (원단위 절사)
                     const minFee = Math.floor(baseFare * 0.05);
                     const maxFee = Math.floor(baseFare * 0.10);
                     resultValueBox.innerHTML = `<span class="range-price">${minFee.toLocaleString()} ~ ${maxFee.toLocaleString()}</span> 원`;
                 }
                 
             } else if (currentMode === 'pickup') {
-                // 2) 집하 모드: 화면에서 선택한 타입(선불/신용) 반영 후 85% 적용 (기존 반올림 유지)
                 const pickupType = document.getElementById("select_type").value;
                 const rate = find_pickup_rate(pickupType, fixedRegion, baseFare);
                 const finalFee = Math.round(baseFare * (rate / 100) * 0.85);
                 resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
                 
             } else if (currentMode === 'return') {
-                // 3) 반품 모드: baseFare의 절반 금액의 85% 적용 (원단위 절사)
                 const halfFare = baseFare * 0.5;
                 const finalFee = Math.floor(halfFare * 0.85);
                 resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
@@ -332,21 +316,19 @@
             const calcBtn = document.getElementById('calc_btn');
             if (calcBtn) {
                 calcBtn.addEventListener('click', function() {
-                    run_calculation(false); // 버튼 직접 누를 때는 잘못 입력 시 alert 노출
+                    run_calculation(false);
                 });
             }
         });
 
-        // 요율 테이블 매핑 함수들 (기존 로직 그대로 안전 유지)
+        // 수수료 요율 조회용 기존 함수 (기존 로직 유지)
         function find_pickup_rate(type, region, baseFare) {
             const thresholds = [0, 1400, 1500, 1600, 1700, 1800, 2000, 2300, 2501, 3500, 4000, 5000];
-            
             const data_prepaid = {
                 'A': [8, 8, 9, 11, 12, 16, 19, 21, 26.5, 26.5, 31.5, 36.5],
                 'B': [8, 8, 9, 11, 12, 16, 19, 21, 28.5, 28.5, 33.5, 38.5],
                 'C': [8, 8, 9, 11, 12, 16, 19, 21, 30.5, 30.5, 35.5, 40.5]
             };
-            
             const data_credit = {
                 'A': [8, 8, 9, 11, 12, 16, 19, 21, 26.5, 26.5, 26.5, 26.5],
                 'B': [8, 8, 9, 11, 12, 16, 19, 21, 28.5, 28.5, 28.5, 28.5],
@@ -367,13 +349,10 @@
 
             const targetTable = (type === "선불") ? data_prepaid : data_credit;
             const regionRates = targetTable[region];
-
             if (!regionRates) return 0;
 
             for (let i = thresholds.length - 1; i >= 0; i--) {
-                if (baseFare >= thresholds[i]) {
-                    return regionRates[i];
-                }
+                if (baseFare >= thresholds[i]) return regionRates[i];
             }
             return regionRates[0];
         }
