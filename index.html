@@ -165,7 +165,7 @@
         <!-- 📊 결과 창 -->
         <div class="result-box">
             <div class="result-row total">
-                <span id="result_label">예상 배송 수수료 (단가 * 94%)</span>
+                <span id="result_label">예상 배송 수수료 </span>
                 <span class="total-price"><span id="out_result">0</span> 원</span>
             </div>
         </div>
@@ -209,20 +209,17 @@
             if (mode === 'delivery') {
                 tabDelivery.classList.add('active', 'delivery');
                 inputLabel.innerText = '배송 운임 입력 (원)';
-                resultLabel.innerText = '예상 배송 수수료 (단가 * 94%)';
-                noticeTip.innerHTML = '💡 배송 수수료는 요율표 기준 단가 산출 후 <strong>최종 94%</strong>를 곱하여 계산(원단위 절사)됩니다.';
+                resultLabel.innerText = '예상 배송 수수료';
             } else if (mode === 'pickup') {
                 tabPickup.classList.add('active', 'pickup');
                 calcBtn.classList.add('pickup-mode');
                 inputLabel.innerText = '집하 운임 입력 (원)';
-                resultLabel.innerText = '예상 집하 수수료 (요율 * 85%)';
-                noticeTip.innerHTML = '💡 집하 수수료는 요율표 기준 요율(%) 산출 후 <strong>최종 85%</strong>를 곱하여 계산(원단위 반올림)됩니다.';
+                resultLabel.innerText = '예상 집하 수수료';
             } else if (mode === 'return') {
                 tabReturn.classList.add('active', 'return');
                 calcBtn.classList.add('return-mode');
                 inputLabel.innerText = '반품 운임 입력 (원)';
-                resultLabel.innerText = '예상 반품 수수료 (절반 금액 * 85%)';
-                noticeTip.innerHTML = '💡 반품 수수료는 <strong>(총운임 - 170원)의 절반(50%) 금액에 다시 85%</strong>를 곱하여 계산(원단위 절사)됩니다.';
+                resultLabel.innerText = '예상 반품 수수료';
             }
         }
 
