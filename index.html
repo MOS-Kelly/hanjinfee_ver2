@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>한진_과천대리점 수수료 종합 계산기</title>
     <style>
-        /* [CSS 스타일] - 기존 스타일 그대로 유지 */
         body {
             background-color: #f1f5f9;
             margin: 0;
@@ -21,7 +20,6 @@
             font-family: sans-serif;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); 
         }
-        /* 메인 타이틀 스타일 */
         .main-title {
             text-align: center;
             font-size: 24px;
@@ -178,12 +176,10 @@
             </div>
         </div>
 
-        <div class="notice-box">
+        <div class="notice-box" id="notice_content">
             <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 금액 구간별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등 한진 전액귀속) 추가 발생 시 예상 수수료보다 실제 수수료가 낮을 수 있습니다.</p>
-            <p>💡 반품 특이사항 : 반송장 출력일자 기준 D+2 이내에 입고 안될 경우 수수료 미발생입니다.</p>
             <p>💡 배송 특이사항 1 : 배송출발 미처리건의 경우에는 배송출발 미처리 벌과금 발생하여 200원 차감됩니다.(한진 귀속) </p>
             <p>💡 배송 특이사항 2 : 착지신용 배송건의 경우 (총운임 - 170원) 기준 5% ~ 10% 요율 범위 수준의 낮은 수수료가 발생합니다. </p>
-            <p>💡 집하 특이사항 : 일반고객사 기준이며, 농협, 홈쇼핑 등 전략고객사의 경우 고객사별로 수수료율이 다르게 적용되어 정확한 수치 파악 불가합니다. 보통 일반고객사 기준보다 낮게 책정되니 참고 부탁드립니다. </p>
         </div>
     </div>
 
@@ -205,8 +201,9 @@
             const inputLabel = document.getElementById('input_label');
             const resultLabel = document.getElementById('result_label');
             const calcBtn = document.getElementById('calc_btn');
+            const noticeContent = document.getElementById('notice_content');
             
-            // 결과창 초기화구조 잡기
+            // 결과창 초기화
             document.getElementById('out_result').innerText = '0';
             document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
 
@@ -215,23 +212,30 @@
             tabReturn.classList.remove('active', 'return');
             calcBtn.className = ''; 
 
-            // 💡 [핵심 버그 수정 포인트] .innerHTML을 쓰면 껍데기가 깨지므로 확실하게 값을 매핑하고 변환합니다.
+            // 💡 [오타 수정 완료] typeGroup.style.display로 정상 변경하여 UI가 멈추지 않고 아래까지 잘 작동합니다.
             if (mode === 'delivery') {
                 tabDelivery.classList.add('active', 'delivery');
-                typeGroup.style.style.display = 'block'; 
+                calcBtn.style.backgroundColor = '#10b981';
+                typeGroup.style.display = 'block'; 
                 typeLabel.innerText = '운임 구분';
                 
                 selectType.innerHTML = `
                     <option value="normal">선착불 / 발지신용</option>
                     <option value="credit">착지신용</option>
                 `;
-                selectType.value = "normal"; // 기본값 강제 지정
-                
                 inputLabel.innerText = '배송 운임 입력 (원)';
                 resultLabel.innerText = '예상 배송 수수료';
+                
+                // 배송 탭 전용 안내문 갱신
+                noticeContent.innerHTML = `
+                    <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 금액 구간별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등 한진 전액귀속) 추가 발생 시 예상 수수료보다 실제 수수료가 낮을 수 있습니다.</p>
+                    <p>💡 배송 특이사항 1 : 배송출발 미처리건의 경우에는 배송출발 미처리 벌과금 발생하여 200원 차감됩니다.(한진 귀속) </p>
+                    <p>💡 배송 특이사항 2 : 착지신용 배송건의 경우 (총운임 - 170원) 기준 5% ~ 10% 요율 범위 수준의 낮은 수수료가 발생합니다. </p>
+                `;
             } else if (mode === 'pickup') {
                 tabPickup.classList.add('active', 'pickup');
                 calcBtn.classList.add('pickup-mode');
+                calcBtn.style.backgroundColor = '#3b82f6';
                 typeGroup.style.display = 'block'; 
                 typeLabel.innerText = '타입 (선불 / 신용)';
                 
@@ -239,16 +243,32 @@
                     <option value="선불">선불</option>
                     <option value="신용">신용</option>
                 `;
-                selectType.value = "선불"; // 기본값 강제 지정
-                
                 inputLabel.innerText = '집하 운임 입력 (원)';
                 resultLabel.innerText = '예상 집하 수수료';
+
+                // 집하 탭 전용 안내문 갱신
+                noticeContent.innerHTML = `
+                    <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 금액 구간별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등 한진 전액귀속) 추가 발생 시 예상 수수료보다 실제 수수료가 낮을 수 있습니다.</p>
+                    <p>💡 집하 특이사항 : 일반고객사 기준이며, 농협, 홈쇼핑 등 전략고객사의 경우 고객사별로 수수료율이 다르게 적용되어 정확한 수치 파악 불가합니다. 보통 일반고객사 기준보다 낮게 책정되니 참고 부탁드립니다. </p>
+                    <p>💡 영업 시 평균 단가 참고하는 용도로만 사용 부탁드립니다.</p>
+                `;
             } else if (mode === 'return') {
                 tabReturn.classList.add('active', 'return');
                 calcBtn.classList.add('return-mode');
+                calcBtn.style.backgroundColor = '#f59e0b';
                 typeGroup.style.display = 'none';  
                 inputLabel.innerText = '반품 운임 입력 (원)';
                 resultLabel.innerText = '예상 반품 수수료';
+
+                // 반품 탭 전용 안내문 갱신
+                noticeContent.innerHTML = `
+                    <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 금액 구간별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등 한진 전액귀속) 추가 발생 시 예상 수수료보다 실제 수수료가 낮을 수 있습니다.</p>
+                    <p>💡 반품 특이사항 : 반송장 출력일자 기준 D+2 이내에 입고 안될 경우 수수료 미발생입니다.</p>
+                `;
+            }
+
+            if (mode !== 'return') {
+                selectType.selectedIndex = 0;
             }
 
             run_calculation_silent();
