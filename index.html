@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한진_과천 수수료  계산기</title>
+    <title>한진_과전대리점 수수료 종합 계산기</title>
     <style>
         /* [CSS 스타일] */
         body {
@@ -171,9 +171,9 @@
         </div>
 
         <div class="notice-box">
-            <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 구간별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등) 추가 발생 시 오차가 생길 수 있습니다.</p>
-            <p>💡 반품의 경우 출력일자 기준 D+2일 이내에 입고 안될경우, 수수료 미발생입니다.</p>
-            <p>💡 평균적인 단가 참고하는 용도로만 사용 부탁드리겠습니다.</p>
+            <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 금액별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등) 추가 발생 시 오차가 생길 수 있습니다.</p>
+            <p>💡 반품의 경우 반송장 출력일자 기준 D+2 이내에 입고 안될 경우 수수료 미발생입니다.</p>
+            <p>💡 영업 시 평균 단가 참고하는 용도로만 사용 부탁드리겠습니다.</p>
         </div>
     </div>
 
@@ -209,21 +209,24 @@
             if (mode === 'delivery') {
                 tabDelivery.classList.add('active', 'delivery');
                 inputLabel.innerText = '배송 운임 입력 (원)';
-                resultLabel.innerText = '예상 배송 수수료';
+                resultLabel.innerText = '예상 배송 수수료 (단가 * 94%)';
+                noticeTip.innerHTML = '💡 배송 수수료는 요율표 기준 단가 산출 후 <strong>최종 94%</strong>를 곱하여 계산(원단위 절사)됩니다.';
             } else if (mode === 'pickup') {
                 tabPickup.classList.add('active', 'pickup');
                 calcBtn.classList.add('pickup-mode');
                 inputLabel.innerText = '집하 운임 입력 (원)';
-                resultLabel.innerText = '예상 집하 수수료 ';
+                resultLabel.innerText = '예상 집하 수수료 (요율 * 85%)';
+                noticeTip.innerHTML = '💡 집하 수수료는 요율표 기준 요율(%) 산출 후 <strong>최종 85%</strong>를 곱하여 계산(원단위 반올림)됩니다.';
             } else if (mode === 'return') {
                 tabReturn.classList.add('active', 'return');
                 calcBtn.classList.add('return-mode');
                 inputLabel.innerText = '반품 운임 입력 (원)';
-                resultLabel.innerText = '예상 반품 수수료';
+                resultLabel.innerText = '예상 반품 수수료 (절반 금액 * 85%)';
+                noticeTip.innerHTML = '💡 반품 수수료는 <strong>(총운임 - 170원)의 절반(50%) 금액에 다시 85%</strong>를 곱하여 계산(원단위 절사)됩니다.';
             }
         }
 
-        // [1. 집하 요율 데이터 - 주신 코드 데이터 전체 보존]
+
         function find_pickup_rate(type, region, baseFare) {
             const thresholds = [0, 1400, 1500, 1600, 1700, 1800, 2000, 2300, 2501, 3500, 4000, 5000];
             
@@ -264,7 +267,7 @@
             return regionRates[0];
         }
 
-        // [2. 배송 요율 데이터 - 주신 이미지 데이터 전체 보존]
+
         function calculate_delivery_base_fee(region, baseFare) {
             if (baseFare <= 1399) {
                 if (region === 'A') return 800;
