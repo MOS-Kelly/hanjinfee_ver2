@@ -154,9 +154,9 @@
             <button id="tab_return" class="tab-btn return" onclick="switchMode('return')">🔄 반품 계산</button>
         </div>
 
-        <div class="input-group" id="delivery_type_group">
-            <label for="delivery_type">운임 구분</label>
-            <select id="delivery_type" onchange="handleDeliveryTypeChange()">
+        <div class="input-group" id="type_group">
+            <label id="type_label" for="select_type">운임 구분</label>
+            <select id="select_type" onchange="handleTypeChange()">
                 <option value="normal">선착불 / 발지신용</option>
                 <option value="credit">착지신용</option>
             </select>
@@ -201,7 +201,9 @@
             const tabPickup = document.getElementById('tab_pickup');
             const tabReturn = document.getElementById('tab_return');
             
-            const deliveryTypeGroup = document.getElementById('delivery_type_group');
+            const typeGroup = document.getElementById('type_group');
+            const typeLabel = document.getElementById('type_label');
+            const selectType = document.getElementById('select_type');
             const inputLabel = document.getElementById('input_label');
             const resultLabel = document.getElementById('result_label');
             const calcBtn = document.getElementById('calc_btn');
@@ -219,27 +221,42 @@
 
             if (mode === 'delivery') {
                 tabDelivery.classList.add('active', 'delivery');
-                deliveryTypeGroup.style.display = 'block'; // 운임 구분 활성화
+                typeGroup.style.display = 'block'; 
+                typeLabel.innerText = '운임 구분';
+                
+                // 배송용 셀렉트 옵션 구성
+                selectType.innerHTML = `
+                    <option value="normal">선착불 / 발지신용</option>
+                    <option value="credit">착지신용</option>
+                `;
+                
                 inputLabel.innerText = '배송 운임 입력 (원)';
                 resultLabel.innerText = '예상 배송 수수료';
-                document.getElementById('delivery_type').value = 'normal';
             } else if (mode === 'pickup') {
                 tabPickup.classList.add('active', 'pickup');
                 calcBtn.classList.add('pickup-mode');
-                deliveryTypeGroup.style.display = 'none';  // 운임 구분 숨김
+                typeGroup.style.display = 'block'; 
+                typeLabel.innerText = '타입 (선불 / 신용)';
+                
+                // 집하용 셀렉트 옵션 구성
+                selectType.innerHTML = `
+                    <option value="선불">선불</option>
+                    <option value="신용">신용</option>
+                `;
+                
                 inputLabel.innerText = '집하 운임 입력 (원)';
                 resultLabel.innerText = '예상 집하 수수료';
             } else if (mode === 'return') {
                 tabReturn.classList.add('active', 'return');
                 calcBtn.classList.add('return-mode');
-                deliveryTypeGroup.style.display = 'none';  // 운임 구분 숨김
+                typeGroup.style.display = 'none';  // 반품은 구분창 숨김
                 inputLabel.innerText = '반품 운임 입력 (원)';
                 resultLabel.innerText = '예상 반품 수수료';
             }
         }
 
-        // 운임구분 변경 시 결과창 UI 조절용 함수
-        function handleDeliveryTypeChange() {
+        // 구분/타입 변경 시 결과창 UI 리셋용 함수
+        function handleTypeChange() {
             document.getElementById('out_result').innerText = '0';
             document.getElementById('calc_fare').value = '';
             document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
@@ -338,7 +355,7 @@
             const baseFare = fare - 170; 
 
             if (currentMode === 'delivery') {
-                const deliveryType = document.getElementById("delivery_type").value;
+                const deliveryType = document.getElementById("select_type").value;
                 
                 if (deliveryType === 'normal') {
                     // 1-1) 일반 선착불 / 발지신용: B급지 단가 추출 후 94% 적용 (원단위 절사)
@@ -353,8 +370,9 @@
                 }
                 
             } else if (currentMode === 'pickup') {
-                // 2) 집하 모드: 선불/B급지 기준 요율 추출 후 85% 적용 (기존 반올림 유지)
-                const rate = find_pickup_rate("선불", fixedRegion, baseFare);
+                // 2) 집하 모드: 화면에서 선택한 타입(선불/신용) 반영 후 85% 적용 (기존 반올림 유지)
+                const pickupType = document.getElementById("select_type").value;
+                const rate = find_pickup_rate(pickupType, fixedRegion, baseFare);
                 const finalFee = Math.round(baseFare * (rate / 100) * 0.85);
                 resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
                 
