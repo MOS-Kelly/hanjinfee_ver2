@@ -2,195 +2,420 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>한진 대리점 수수료 계산기</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한진_과천대리점 수수료 종합 계산기</title>
     <style>
-        /* 간단한 UI 스타일링 (작업 중이신 화면과 유사하게 구성) */
-        body { font-family: 'Malgun Gothic', sans-serif; background-color: #f4f6f9; padding: 20px; }
-        .calculator-container { max-width: 600px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { flex: 1; padding: 12px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; background: #e9ecef; }
-        .tab-btn.active { background: #3b82f6; color: white; }
-        .tab-btn.active.delivery { background: #10b981; } /* 배송 탭은 초록색 예시 */
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
-        .btn-calc { width: 100%; padding: 12px; border: none; border-radius: 5px; background: #3b82f6; color: white; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn-calc.delivery { background: #10b981; }
-        .result-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 5px; margin-top: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .result-title { font-weight: bold; font-size: 16px; }
-        .result-value { font-size: 20px; font-weight: bold; color: #dc2626; }
-        .notice-box { background: #f0fdf4; border-left: 4px solid #10b981; padding: 15px; margin-top: 20px; font-size: 13px; color: #1e293b; line-height: 1.6; }
+        /* [CSS 스타일] - 기존 스타일 그대로 유지 */
+        body {
+            background-color: #f1f5f9;
+            margin: 0;
+            padding: 10px;
+        }
+        .calculator-box {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 25px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background-color: #fff;
+            font-family: sans-serif;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); 
+        }
+        /* 메인 타이틀 스타일 */
+        .main-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-top: 5px;
+            margin-bottom: 25px;
+        }
+        
+        /* 🎛️ 3단 탭 버튼 스타일 */
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            background-color: #f1f5f9;
+            padding: 5px;
+            border-radius: 8px;
+            gap: 2px;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-radius: 6px;
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .tab-btn.active.delivery {
+            background-color: #10b981; /* 배송: 초록 */
+            color: white;
+        }
+        .tab-btn.active.pickup {
+            background-color: #3b82f6; /* 집하: 파랑 */
+            color: white;
+        }
+        .tab-btn.active.return {
+            background-color: #f59e0b; /* 반품: 주황 */
+            color: white;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #475569;
+        }
+        .input-group select,
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        
+        /* 계산하기 버튼 스타일 */
+        #calc_btn {
+            width: 100%;
+            padding: 15px;
+            background-color: #10b981; 
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #calc_btn.pickup-mode { background-color: #3b82f6; }
+        #calc_btn.return-mode { background-color: #f59e0b; }
+        #calc_btn:hover { opacity: 0.9; }
+
+        .divider {
+            border-top: 1px solid #e2e8f0;
+            margin: 25px 0;
+        }
+        .result-box {
+            margin: 20px 0;
+            padding: 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background-color: #f8fafc;
+        }
+        .total {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .total-price {
+            color: #e11d48;
+            font-size: 22px;
+        }
+        .range-price {
+            font-size: 18px;
+            color: #2563eb;
+        }
+        .notice-box {
+            margin: 25px auto 5px auto;
+            padding: 15px;
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+            text-align: left; 
+            max-width: 95%;
+        }
+        .notice-box p { margin: 8px 0; }
     </style>
 </head>
 <body>
 
-<div class="calculator-container">
-    <div class="tabs">
-        <button class="tab-btn active" id="tab-pickup" onclick="switchTab('pickup')">📦 집하 계산</button>
-        <button class="tab-btn" id="tab-delivery" onclick="switchTab('delivery')">🚛 배송 계산</button>
-        <button class="tab-btn" id="tab-return" onclick="switchTab('return')">🔄 반품 계산</button>
-    </div>
+    <div class="calculator-box">
+        <div class="main-title">🚚 한진_과천대리점 수수료 계산기</div>
 
-    <div id="calculator-form">
-        <div class="form-group" id="type-select-group">
-            <label id="type-label">타입 (선불 / 신용)</label>
-            <select id="type_select" class="form-control" onchange="handleTypeChange()">
-                <option value="선불">선불</option>
-                <option value="신용">신용</option>
+        <div class="tab-container">
+            <button id="tab_delivery" class="tab-btn active delivery" onclick="switchMode('delivery')">🚛 배송 계산</button>
+            <button id="tab_pickup" class="tab-btn pickup" onclick="switchMode('pickup')">📦 집하 계산</button>
+            <button id="tab_return" class="tab-btn return" onclick="switchMode('return')">🔄 반품 계산</button>
+        </div>
+
+        <div class="input-group" id="type_group">
+            <label id="type_label" for="select_type">운임 구분</label>
+            <select id="select_type" onchange="handleTypeChange()">
+                <option value="normal">선착불 / 발지신용</option>
+                <option value="credit">착지신용</option>
             </select>
         </div>
 
-        <div class="form-group">
-            <label id="fare-label">집하 운임 입력 (원)</label>
-            <input type="number" id="calc_fare" class="form-control" placeholder="예: 3000" oninput="autoCalculate()">
+        <div class="input-group">
+            <label id="input_label" for="calc_fare">배송 운임 입력 (원)</label>
+            <input type="number" id="calc_fare" placeholder="예: 3000" oninput="run_calculation_silent()">
         </div>
 
-        <button type="button" id="btn-submit" class="btn-calc" onclick="executeCalculation()">계산하기</button>
-    </div>
+        <button id="calc_btn">계산하기</button>
 
-    <div class="result-box">
-        <span class="result-title" id="result-title-text">예상 집하 수수료</span>
-        <div id="result_value_box">
-            <span id="out_result">0</span> 원
+        <div class="divider"></div>
+
+        <div class="result-box">
+            <div class="result-row total">
+                <span id="result_label">예상 배송 수수료</span>
+                <span class="total-price" id="result_value_box"><span id="out_result">0</span> 원</span>
+            </div>
+        </div>
+
+        <div class="notice-box">
+            <p>💡 일반적으로는 <strong>총운임 - 사회적합의비용(170원)</strong> 기준으로 금액 구간별 수수료 발생하여 정산되나, 기타비용(도서산간, 항공료 등 한진 전액귀속) 추가 발생 시 예상 수수료보다 실제 수수료가 낮을 수 있습니다.</p>
+            <p>💡 반품 특이사항 : 반송장 출력일자 기준 D+2 이내에 입고 안될 경우 수수료 미발생입니다.</p>
+            <p>💡 배송 특이사항 1 : 배송출발 미처리건의 경우에는 배송출발 미처리 벌과금 발생하여 200원 차감됩니다.(한진 귀속) </p>
+            <p>💡 배송 특이사항 2 : 착지신용 배송건의 경우 (총운임 - 170원) 기준 5% ~ 10% 요율 범위 수준의 낮은 수수료가 발생합니다. </p>
+            <p>💡 집하 특이사항 : 일반고객사 기준이며, 농협, 홈쇼핑 등 전략고객사의 경우 고객사별로 수수료율이 다르게 적용되어 정확한 수치 파악 불가합니다. 보통 일반고객사 기준보다 낮게 책정되니 참고 부탁드립니다. </p>
         </div>
     </div>
 
-    <div class="notice-box" id="notice-content">
-        💡 일반적으로는 총운임 - 사회적합의비용(170원) 기준으로 금액 구간별 수수료 발생하여 정산되나, 기타 비용 추가 발생 시 예상 수수료보다 실제 수수료가 낮을 수 있습니다.
-    </div>
-</div>
+    <script>
+        // 현재 선택된 모드 상태 저장 (기본값: 'delivery')
+        let currentMode = 'delivery';
+        // 급지는 B급지로 고정 처리
+        const fixedRegion = 'B'; 
 
-<script>
-    // [설정] B급지 고정 변수
-    const fixedRegion = 'B';
-
-    // 현재 활성화된 탭 상태 ('pickup', 'delivery', 'return')
-    let currentTab = 'pickup';
-
-    // 1. 탭 전환 로직
-    function switchTab(tab) {
-        currentTab = tab;
-        
-        // 버튼 스타일 토글
-        document.getElementById('tab-pickup').classList.remove('active', 'delivery');
-        document.getElementById('tab-delivery').classList.remove('active', 'delivery');
-        document.getElementById('tab-return').classList.remove('active', 'delivery');
-        
-        const activeTabBtn = document.getElementById(`tab-${tab}`);
-        activeTabBtn.classList.add('active');
-        
-        const submitBtn = document.getElementById('btn-submit');
-
-        // 탭별 UI 레이아웃 동적 변경
-        if (tab === 'pickup') {
-            submitBtn.classList.remove('delivery');
-            submitBtn.innerText = '계산하기';
-            document.getElementById('type-label').innerText = '타입 (선불 / 신용)';
-            document.getElementById('fare-label').innerText = '집하 운임 입력 (원)';
-            document.getElementById('result-title-text').innerText = '예상 집하 수수료';
+        // 탭 전환 함수
+        function switchMode(mode) {
+            currentMode = mode;
             
-            // 집하에 맞는 셀렉트 박스 옵션 구성
-            document.getElementById('type_select').innerHTML = `
-                <option value="선불">선불</option>
-                <option value="신용">신용</option>
-            `;
-        } else if (tab === 'delivery') {
-            submitBtn.classList.add('delivery');
-            submitBtn.innerText = '계산하기';
-            document.getElementById('type-label').innerText = '운임 구분';
-            document.getElementById('fare-label').innerText = '배송 운임 입력 (원)';
-            document.getElementById('result-title-text').innerText = '예상 배송 수수료';
+            const tabDelivery = document.getElementById('tab_delivery');
+            const tabPickup = document.getElementById('tab_pickup');
+            const tabReturn = document.getElementById('tab_return');
             
-            // 배송에 맞는 셀렉트 박스 옵션 구성
-            document.getElementById('type_select').innerHTML = `
-                <option value="일반선착불">일반선착불</option>
-                <option value="착지신용">착지신용</option>
-            `;
+            const typeGroup = document.getElementById('type_group');
+            const typeLabel = document.getElementById('type_label');
+            const selectType = document.getElementById('select_type');
+            const inputLabel = document.getElementById('input_label');
+            const resultLabel = document.getElementById('result_label');
+            const calcBtn = document.getElementById('calc_btn');
+            
+            // ❌ [수정] 탭 변경 시 기존 입력값(.value = '')을 지우던 코드를 완벽히 제거했습니다!
+            // 수수료 결과 출력 박스만 초기화용 구조로 잡아둡니다.
+            document.getElementById('out_result').innerText = '0';
+            document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
+
+            // 클래스 완전 초기화 후 매칭되는 것만 주입
+            tabDelivery.classList.remove('active', 'delivery');
+            tabPickup.classList.remove('active', 'pickup');
+            tabReturn.classList.remove('active', 'return');
+            calcBtn.className = ''; 
+
+            if (mode === 'delivery') {
+                tabDelivery.classList.add('active', 'delivery');
+                typeGroup.style.display = 'block'; 
+                typeLabel.innerText = '운임 구분';
+                
+                // 배송용 셀렉트 옵션 구성
+                selectType.innerHTML = `
+                    <option value="normal">선착불 / 발지신용</option>
+                    <option value="credit">착지신용</option>
+                `;
+                
+                inputLabel.innerText = '배송 운임 입력 (원)';
+                resultLabel.innerText = '예상 배송 수수료';
+            } else if (mode === 'pickup') {
+                tabPickup.classList.add('active', 'pickup');
+                calcBtn.classList.add('pickup-mode');
+                typeGroup.style.display = 'block'; 
+                typeLabel.innerText = '타입 (선불 / 신용)';
+                
+                // 집하용 셀렉트 옵션 구성
+                selectType.innerHTML = `
+                    <option value="선불">선불</option>
+                    <option value="신용">신용</option>
+                `;
+                
+                inputLabel.innerText = '집하 운임 입력 (원)';
+                resultLabel.innerText = '예상 집하 수수료';
+            } else if (mode === 'return') {
+                tabReturn.classList.add('active', 'return');
+                calcBtn.classList.add('return-mode');
+                typeGroup.style.display = 'none';  // 반품은 구분창 숨김
+                inputLabel.innerText = '반품 운임 입력 (원)';
+                resultLabel.innerText = '예상 반품 수수료';
+            }
+
+            // ✨ [추가] 탭을 누르는 순간, 기존에 입력되어 있던 금액 기준으로 자동 즉시 계산 실행
+            run_calculation_silent();
         }
-        
-        // 탭이 바뀔 때는 수수료 결과만 초기화 (운임 입력값은 유지 가능)
-        resetResultOnly();
-        // 탭 전환 후 바로 자동 계산 처리
-        autoCalculate();
-    }
 
-    // 2. [핵심 수정] 구분/타입 변경 시 실행되는 함수
-    function handleTypeChange() {
-        // 수수료 결과창 UI만 리셋합니다.
-        resetResultOnly();
-        
-        // 짚어주신 주범이었던 변수 초기화 라인(value = '')을 제거하여 운임 입력값이 그대로 유지됩니다!
-        // 토글 변경과 동시에 즉시 실시간 계산을 돌립니다.
-        autoCalculate();
-    }
-
-    // 결과창만 0원으로 리셋하는 공통 함수
-    function resetResultOnly() {
-        document.getElementById('out_result').innerText = '0';
-        document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
-    }
-
-    // 3. 값이 입력되거나 토글이 바뀔 때 실시간 자동 계산 함수
-    function autoCalculate() {
-        const fareValue = document.getElementById('calc_fare').value;
-        // 입력 값이 없거나 빈 문자열이면 계산 안 하고 0원으로 둠
-        if (!fareValue || fareValue.trim() === "") {
-            resetResultOnly();
-            return;
-        }
-        executeCalculation();
-    }
-
-    // 4. 실제 계산 실행 컨트롤러
-    function executeCalculation() {
-        const fareInput = document.getElementById('calc_fare').value;
-        const baseFare = parseInt(fareInput, 10);
-        if (isNaN(baseFare)) return;
-
-        const selectedType = document.getElementById('type_select').value;
-        let finalFee = 0;
-
-        if (currentTab === 'pickup') {
-            // 집하 계산 호출 (B타입 고정 전송)
-            finalFee = calculate_pickup_fee(selectedType, fixedRegion, baseFare);
-        } else if (currentTab === 'delivery') {
-            // 배송 계산 호출 (B타입 고정 전송)
-            finalFee = calculate_delivery_fee(selectedType, fixedRegion, baseFare);
+        // 구분/타입(셀렉트 박스) 변경 시 실행되는 함수
+        function handleTypeChange() {
+            // ❌ [수정] 토글 바꿀 때 입력금액 리셋하던 코드 지움 (운임 유지)
+            document.getElementById('out_result').innerText = '0';
+            document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
+            
+            // ✨ [추가] 토글을 바꾸자마자 즉시 실시간 자동 계산 호출
+            run_calculation_silent();
         }
 
-        // 화면에 최종 수수료 금액 반영 (천단위 콤마 추가)
-        document.getElementById('out_result').innerText = finalFee.toLocaleString();
-    }
+        // ✨ [추가] 값 입력 도중이나 토글 자동 전환 시 경고창(Alert) 없이 부드럽게 계산해주는 백그라운드 함수
+        function run_calculation_silent() {
+            const fareValue = document.getElementById("calc_fare").value.trim();
+            const fare = parseFloat(fareValue);
 
-    // 5. [로직] 집하 수수료 계산 함수 (기존 테이블 연동 규칙)
-    function calculate_pickup_fee(type, region, baseFare) {
-        // 예시 요율 테이블 매핑 (실제 데이터에 맞게 내부 조건 조정 가능)
-        // region 변수는 항상 'B'로 들어옵니다.
-        let fee = 0;
-        
-        // 사회적합의비용 차감 등 대리점 요율 정산 공식 구현부
-        // 아래는 간단한 예시 공식이며, 기존에 사용하시던 find_pickup_rate 알고리즘을 대입하시면 됩니다.
-        if (type === '선불') {
-            fee = Math.floor((baseFare - 170) * 0.11); // 선불 B급지 예시 요율 11%
-        } else if (type === '신용') {
-            fee = Math.floor((baseFare - 170) * 0.09); // 신용 B급지 예시 요율 9%
+            // 금액이 입력되지 않았거나 유효하지 않으면 연산하지 않고 0원으로 대기
+            if (isNaN(fare) || fare <= 170) {
+                document.getElementById('result_value_box').innerHTML = '<span id="out_result">0</span> 원';
+                return;
+            }
+            // 값이 정상적이면 메인 연산 로직 작동
+            run_calculation(true); 
         }
-        
-        return fee < 0 ? 0 : fee;
-    }
 
-    // 6. [로직] 배송 수수료 계산 함수
-    function calculate_delivery_fee(type, region, baseFare) {
-        let fee = 0;
-        // 배송 계산 시 기존과 동일하게 B급지 단가 기준 94% 원단위 절사 등 규칙 적용
-        if (type === '일반선착불') {
-            fee = Math.floor((baseFare - 170) * 0.94);
-        } else if (type === '착지신용') {
-            fee = Math.floor((baseFare - 170) * 0.05); // 착지신용 예시 (5%)
+        // 메인 통합 계산 실행 함수
+        function run_calculation(isSilent = false) {
+            const fareValue = document.getElementById("calc_fare").value.trim();
+            const fare = parseFloat(fareValue);
+            const resultValueBox = document.getElementById("result_value_box");
+
+            // 버튼을 직접 클릭했을 때만(isSilent가 아닐 때만) 경고 알림창을 띄우도록 제어
+            if (isNaN(fare) || fare <= 170) {
+                if (isSilent !== true) {
+                    alert("170원보다 큰 정확한 운임 금액을 입력해주세요.");
+                }
+                return;
+            }
+
+            const baseFare = fare - 170; 
+
+            if (currentMode === 'delivery') {
+                const deliveryType = document.getElementById("select_type").value;
+                
+                if (deliveryType === 'normal') {
+                    // 1-1) 일반 선착불 / 발지신용: B급지 단가 추출 후 94% 적용 (원단위 절사)
+                    const deliveryBase = calculate_delivery_base_fee(fixedRegion, baseFare);
+                    const finalFee = Math.floor(deliveryBase * 0.94);
+                    resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
+                } else if (deliveryType === 'credit') {
+                    // 1-2) 착지신용: (총운임 - 170)의 5% ~ 10% 요율 구간 계산 (원단위 절사)
+                    const minFee = Math.floor(baseFare * 0.05);
+                    const maxFee = Math.floor(baseFare * 0.10);
+                    resultValueBox.innerHTML = `<span class="range-price">${minFee.toLocaleString()} ~ ${maxFee.toLocaleString()}</span> 원`;
+                }
+                
+            } else if (currentMode === 'pickup') {
+                // 2) 집하 모드: 화면에서 선택한 타입(선불/신용) 반영 후 85% 적용 (기존 반올림 유지)
+                const pickupType = document.getElementById("select_type").value;
+                const rate = find_pickup_rate(pickupType, fixedRegion, baseFare);
+                const finalFee = Math.round(baseFare * (rate / 100) * 0.85);
+                resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
+                
+            } else if (currentMode === 'return') {
+                // 3) 반품 모드: baseFare의 절반 금액의 85% 적용 (원단위 절사)
+                const halfFare = baseFare * 0.5;
+                const finalFee = Math.floor(halfFare * 0.85);
+                resultValueBox.innerHTML = `<span id="out_result">${finalFee.toLocaleString()}</span> 원`;
+            }
         }
-        return fee < 0 ? 0 : fee;
-    }
-</script>
 
+        document.addEventListener("DOMContentLoaded", function() {
+            const calcBtn = document.getElementById('calc_btn');
+            if (calcBtn) {
+                calcBtn.addEventListener('click', function() {
+                    run_calculation(false); // 버튼 직접 누를 때는 잘못 입력 시 alert 노출
+                });
+            }
+        });
+
+        // 요율 테이블 매핑 함수들 (기존 로직 그대로 안전 유지)
+        function find_pickup_rate(type, region, baseFare) {
+            const thresholds = [0, 1400, 1500, 1600, 1700, 1800, 2000, 2300, 2501, 3500, 4000, 5000];
+            
+            const data_prepaid = {
+                'A': [8, 8, 9, 11, 12, 16, 19, 21, 26.5, 26.5, 31.5, 36.5],
+                'B': [8, 8, 9, 11, 12, 16, 19, 21, 28.5, 28.5, 33.5, 38.5],
+                'C': [8, 8, 9, 11, 12, 16, 19, 21, 30.5, 30.5, 35.5, 40.5]
+            };
+            
+            const data_credit = {
+                'A': [8, 8, 9, 11, 12, 16, 19, 21, 26.5, 26.5, 26.5, 26.5],
+                'B': [8, 8, 9, 11, 12, 16, 19, 21, 28.5, 28.5, 28.5, 28.5],
+                'C': [8, 8, 9, 11, 12, 16, 19, 21, 30.5, 30.5, 30.5, 30.5]
+            };
+
+            if (baseFare >= 6000) {
+                if (type === "선불") {
+                    if (region === 'A') return 39.5;
+                    if (region === 'B') return 41.5;
+                    if (region === 'C') return 43.5;
+                } else {
+                    if (region === 'A') return 26.5;
+                    if (region === 'B') return 28.5;
+                    if (region === 'C') return 30.5;
+                }
+            }
+
+            const targetTable = (type === "선불") ? data_prepaid : data_credit;
+            const regionRates = targetTable[region];
+
+            if (!regionRates) return 0;
+
+            for (let i = thresholds.length - 1; i >= 0; i--) {
+                if (baseFare >= thresholds[i]) {
+                    return regionRates[i];
+                }
+            }
+            return regionRates[0];
+        }
+
+        function calculate_delivery_base_fee(region, baseFare) {
+            if (baseFare <= 1399) {
+                if (region === 'A') return 800;
+                if (region === 'B') return 840;
+                if (region === 'C') return 900;
+            } 
+            else if (baseFare <= 1499) {
+                if (region === 'A') return 800;
+                if (region === 'B') return 840;
+                if (region === 'C') return 900;
+            } 
+            else if (baseFare <= 1599) {
+                if (region === 'A') return 830;
+                if (region === 'B') return 850;
+                if (region === 'C') return 900;
+            } 
+            else if (baseFare <= 1699) {
+                if (region === 'A') return 840;
+                if (region === 'B') return 860;
+                if (region === 'C') return 900;
+            } 
+            else if (baseFare <= 2950) {
+                if (region === 'A') return 850;
+                if (region === 'B') return 870;
+                if (region === 'C') return 900;
+            } 
+            else if (baseFare <= 3050) {
+                if (region === 'A') return 850;
+                if (region === 'B') return 870;
+                if (region === 'C') return baseFare * 0.305;
+            } 
+            else {
+                if (region === 'A') return baseFare * 0.265;
+                if (region === 'B') return baseFare * 0.285;
+                if (region === 'C') return baseFare * 0.305;
+            }
+            return 0;
+        }
+    </script>
 </body>
 </html>
